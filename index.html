@@ -1,0 +1,33 @@
+<html>
+  <head>
+    <script src="https://cdn.jsdelivr.net/npm/zego-uikit-prebuilt@latest"></script>
+  </head>
+  <body>
+    <div id="room-container"></div>
+    <script>
+      // ZegoCloud bilgilerinizi buraya girin
+      const appID = 18086609;  // AppID'nizi buraya girin
+      const appSign = '6c09f1501d63b3d762b53e3b1fa4c22f4084327a25ec2318e0c7862b8270c543';  // AppSign'inizi buraya girin
+      const roomID = 'prstarmaker_room';  // Oda adı veya ID'sini buraya yazın
+      const userID = 'user_' + Math.floor(Math.random() * 10000);  // Rastgele bir kullanıcı ID'si
+      const userName = 'User_' + userID;  // Rastgele bir kullanıcı adı
+
+      const config = {
+        appID: appID,
+        appSign: appSign,
+        userID: userID,
+        userName: userName,
+        roomID: roomID,
+        container: document.getElementById('room-container'),
+      };
+
+      // Odaya bağlan
+      const zp = ZegoPrebuiltUIKit.create(config);
+      zp.joinRoom().then(() => {
+        console.log("Odaya başarıyla bağlandınız!");
+      }).catch((error) => {
+        console.error("Odaya bağlanırken bir hata oluştu:", error);
+      });
+    </script>
+  </body>
+</html>

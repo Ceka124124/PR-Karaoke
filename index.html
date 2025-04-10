@@ -1,93 +1,108 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Karaoke Odası</title>
-    <link rel="stylesheet" href="styles.css"> <!-- Stil dosyan varsa -->
-    <script src="https://cdn.jsdelivr.net/npm/zego-sdk@latest"></script> <!-- Zego SDK -->
-    <script src="karaoke.js" defer></script> <!-- Karaoke JS dosyası -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Karaoke Odası</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+    }
+    #startButton, #stopButton {
+      padding: 10px 20px;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    #stopButton {
+      background-color: #dc3545;
+    }
+    #chat {
+      margin-top: 20px;
+      width: 100%;
+      height: 200px;
+      overflow-y: auto;
+      border: 1px solid #ccc;
+      padding: 10px;
+    }
+    #messageBox {
+      width: 100%;
+      padding: 10px;
+    }
+  </style>
 </head>
 <body>
-    <div id="app-container">
-        <h1>Karaoke Odası</h1>
-        <div id="room-info">
-            <p>Oda Adı: <span id="roomName">KaraokeRoom</span></p>
-            <p>Kullanıcı Adı: <span id="userName">Kullanıcı</span></p>
-        </div>
-        
-        <!-- Mikrofon açma/kapama butonu -->
-        <button id="micButton">Mikrofon Aç/Kapa</button>
-        
-        <!-- Video açma/kapama butonu -->
-        <button id="videoButton">Video Aç/Kapa</button>
-        
-        <!-- Karaoke başlatma butonu -->
-        <button id="karaokeButton">Karaoke Başlat</button>
-        
-        <!-- Sohbet alanı -->
-        <div id="chat-container">
-            <h2>Sohbet</h2>
-            <div id="messages">
-                <!-- Sohbet mesajları buraya gelecek -->
-            </div>
-            <input type="text" id="messageInput" placeholder="Mesaj yaz..." />
-            <button id="sendMessageButton">Gönder</button>
-        </div>
-    </div>
+  <h1>Karaoke Odası</h1>
+  <button id="startButton">Mikrofonu Aç</button>
+  <button id="stopButton" disabled>Dur</button>
+  <audio id="audioPlayer" controls></audio>
 
-    <script>
-        // Butonlara tıklama olaylarını bağlayalım
-        document.getElementById('micButton').addEventListener('click', function() {
-            toggleMic();
+  <h3>Sohbet:</h3>
+  <div id="chat"></div>
+  <input type="text" id="messageBox" placeholder="Mesaj yazın..." />
+  <button id="sendMessage">Gönder</button>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io(); // Socket.io bağlantısı
+
+    let mediaRecorder;
+    let audioChunks = [];
+
+    // Mikrofonu açma
+    document.getElementById('startButton').addEventListener('click', () => {
+      navigator.mediaDevices.getUserMedia({ audio: true })
+        .then((stream) => {
+          mediaRecorder = new MediaRecorder(stream);
+          mediaRecorder.ondataavailable = (event) => {
+            audioChunks.push(event.data);
+          };
+
+          mediaRecorder.onstop = () => {
+            const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+            socket.emit('audio', audioBlob); // Ses verisini sunucuya gönder
+            audioChunks = [];
+          };
+
+          mediaRecorder.start();
+          document.getElementById('stopButton').disabled = false;
+          document.getElementById('startButton').disabled = true;
+        })
+        .catch((err) => {
+          console.error('Mikrofon hatası:', err);
         });
+    });
 
-        document.getElementById('videoButton').addEventListener('click', function() {
-            toggleVideo();
-        });
+    // Mikrofonu durdurma
+    document.getElementById('stopButton').addEventListener('click', () => {
+      mediaRecorder.stop();
+      document.getElementById('stopButton').disabled = true;
+      document.getElementById('startButton').disabled = false;
+    });
 
-        document.getElementById('karaokeButton').addEventListener('click', function() {
-            startKaraoke();
-        });
+    // Diğer kullanıcılara ses iletme
+    socket.on('audio', (audioBlob) => {
+      const audio = new Audio(URL.createObjectURL(audioBlob));
+      audio.play(); // Gelen ses verisini çal
+    });
 
-        document.getElementById('sendMessageButton').addEventListener('click', function() {
-            const message = document.getElementById('messageInput').value;
-            if (message.trim()) {
-                sendMessage(message);
-                document.getElementById('messageInput').value = '';  // Mesaj gönderildikten sonra input'u temizle
-            }
-        });
+    // Sohbet mesajlarını gösterme
+    socket.on('message', (message) => {
+      const chatBox = document.getElementById('chat');
+      chatBox.innerHTML += `<p><strong>${message.username}: </strong>${message.text}</p>`;
+      chatBox.scrollTop = chatBox.scrollHeight; // Son mesaja kaydır
+    });
 
-        // Mikrofona tıklama işlevi
-        function toggleMic() {
-            console.log("Mikrofon açıldı veya kapatıldı.");
-            // Mikrofon açma/kapama işlemleri Zego SDK ile burada yapılacak
-        }
+    // Mesaj gönderme
+    document.getElementById('sendMessage').addEventListener('click', () => {
+      const messageBox = document.getElementById('messageBox');
+      const message = messageBox.value;
+      messageBox.value = ''; // Mesaj kutusunu temizle
 
-        // Videoya tıklama işlevi
-        function toggleVideo() {
-            console.log("Video açıldı veya kapatıldı.");
-            // Video açma/kapama işlemleri Zego SDK ile burada yapılacak
-        }
-
-        // Karaoke başlatma
-        function startKaraoke() {
-            console.log("Karaoke başlatıldı.");
-            // Karaoke başlatma işlemleri Zego SDK ile burada yapılacak
-        }
-
-        // Sohbet mesajlarını görüntüle
-        function displayMessage(message) {
-            const messageElement = document.createElement('div');
-            messageElement.textContent = message;
-            document.getElementById('messages').appendChild(messageElement);
-        }
-
-        // Sohbet mesajını gönder
-        function sendMessage(message) {
-            displayMessage(message);
-            // Burada Zego SDK ile sohbet gönderme işlemleri yapılabilir
-        }
-    </script>
+      // Mesajı sunucuya gönderme
+      socket.emit('message', { username: 'Kullanıcı', text: message });
+    });
+  </script>
 </body>
 </html>

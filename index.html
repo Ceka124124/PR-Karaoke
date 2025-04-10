@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Karaoke Odası</title>
-    <link rel="stylesheet" href="styles.css"> <!-- Eğer özel stil dosyan varsa -->
+    <link rel="stylesheet" href="styles.css"> <!-- Stil dosyan varsa -->
     <script src="https://cdn.jsdelivr.net/npm/zego-sdk@latest"></script> <!-- Zego SDK -->
-    <script src="karaoke.js" defer></script> <!-- Karaoke fonksiyonlarını barındıran JS dosyası -->
+    <script src="karaoke.js" defer></script> <!-- Karaoke JS dosyası -->
 </head>
 <body>
     <div id="app-container">
@@ -37,7 +37,19 @@
     </div>
 
     <script>
-        // Mesaj gönderme işlevi
+        // Butonlara tıklama olaylarını bağlayalım
+        document.getElementById('micButton').addEventListener('click', function() {
+            toggleMic();
+        });
+
+        document.getElementById('videoButton').addEventListener('click', function() {
+            toggleVideo();
+        });
+
+        document.getElementById('karaokeButton').addEventListener('click', function() {
+            startKaraoke();
+        });
+
         document.getElementById('sendMessageButton').addEventListener('click', function() {
             const message = document.getElementById('messageInput').value;
             if (message.trim()) {
@@ -46,11 +58,35 @@
             }
         });
 
+        // Mikrofona tıklama işlevi
+        function toggleMic() {
+            console.log("Mikrofon açıldı veya kapatıldı.");
+            // Mikrofon açma/kapama işlemleri Zego SDK ile burada yapılacak
+        }
+
+        // Videoya tıklama işlevi
+        function toggleVideo() {
+            console.log("Video açıldı veya kapatıldı.");
+            // Video açma/kapama işlemleri Zego SDK ile burada yapılacak
+        }
+
+        // Karaoke başlatma
+        function startKaraoke() {
+            console.log("Karaoke başlatıldı.");
+            // Karaoke başlatma işlemleri Zego SDK ile burada yapılacak
+        }
+
         // Sohbet mesajlarını görüntüle
         function displayMessage(message) {
             const messageElement = document.createElement('div');
             messageElement.textContent = message;
             document.getElementById('messages').appendChild(messageElement);
+        }
+
+        // Sohbet mesajını gönder
+        function sendMessage(message) {
+            displayMessage(message);
+            // Burada Zego SDK ile sohbet gönderme işlemleri yapılabilir
         }
     </script>
 </body>

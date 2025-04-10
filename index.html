@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sesli Sohbet Odası</title>
+    <title>Karaoke Odası</title>
     <script src="https://cdn.jsdelivr.net/npm/zego-uikit-prebuilt@latest"></script>
     <style>
         body {
@@ -53,26 +53,24 @@
     </style>
 </head>
 <body>
-    <!-- Oda için yer ayırma -->
     <div id="room-container">
-        <div class="header">Sesli Sohbet Odası</div>
+        <div class="header">Karaoke Odası</div>
     </div>
 
     <div class="footer">
-        <!-- Ses açma butonu -->
         <button class="button" id="enableAudio">Ses Aç</button>
-        <!-- Katıl butonu -->
         <button class="button" id="joinRoom">Odaya Katıl</button>
+        <button class="button" id="playMusic">Müziği Başlat</button>
     </div>
-    
+
     <script>
         // ZegoCloud bilgilerinizi buraya girin
         const appID = 18086609;  // ZegoCloud AppID
         const appSign = '6c09f1501d63b3d762b53e3b1fa4c22f4084327a25ec2318e0c7862b8270c543';  // ZegoCloud AppSign
-        const roomID = 'prstarmaker_room';  // Oda ID veya ismi
+        const roomID = 'karaoke_room';  // Oda ID veya ismi
         const userID = 'user_' + Math.floor(Math.random() * 10000);  // Rastgele kullanıcı ID
         const userName = 'User_' + userID;  // Rastgele kullanıcı adı
-        
+
         // WebSocket server adresi
         const serverURL = 'wss://webliveroom18086609-api.coolzcloud.com/ws';
 
@@ -84,7 +82,7 @@
             userName: userName,
             roomID: roomID,
             container: document.getElementById('room-container'),
-            serverURL: serverURL,  // WebSocket server adresini buraya ekleyin
+            serverURL: serverURL,
         };
 
         // ZegoCloud odasına katıl
@@ -93,9 +91,9 @@
         // Katıl butonuna tıklanınca oda bağlantısını yap
         document.getElementById('joinRoom').addEventListener('click', () => {
             zp.joinRoom().then(() => {
-                console.log("Odaya başarıyla bağlandınız!");
+                console.log("Karaoke odasına başarıyla bağlandınız!");
             }).catch((error) => {
-                console.error("Odaya bağlanırken bir hata oluştu:", error);
+                console.error("Karaoke odasına bağlanırken bir hata oluştu:", error);
             });
         });
 
@@ -103,6 +101,13 @@
         document.getElementById('enableAudio').addEventListener('click', () => {
             zp.enableAudio(true); // Ses aç
             console.log("Ses açıldı");
+        });
+
+        // Müziği başlat
+        document.getElementById('playMusic').addEventListener('click', () => {
+            const audio = new Audio('karaoke_song.mp3'); // Şarkı URL'si
+            audio.play();
+            console.log("Müzik başladı");
         });
     </script>
 </body>

@@ -6,17 +6,64 @@
     <title>Sesli Sohbet Odası</title>
     <script src="https://cdn.jsdelivr.net/npm/zego-uikit-prebuilt@latest"></script>
     <style>
-        /* Oda görünümü için biraz stil */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
         #room-container {
             width: 100%;
             height: 100vh;
-            background-color: #f0f0f0;
+            background-color: #e9ecef;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+        .header {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: #fff;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .footer {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 20px;
+        }
+        .button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .button:hover {
+            background-color: #0056b3;
         }
     </style>
 </head>
 <body>
     <!-- Oda için yer ayırma -->
-    <div id="room-container"></div>
+    <div id="room-container">
+        <div class="header">Sesli Sohbet Odası</div>
+    </div>
+
+    <div class="footer">
+        <!-- Ses açma butonu -->
+        <button class="button" id="enableAudio">Ses Aç</button>
+        <!-- Katıl butonu -->
+        <button class="button" id="joinRoom">Odaya Katıl</button>
+    </div>
     
     <script>
         // ZegoCloud bilgilerinizi buraya girin
@@ -25,6 +72,9 @@
         const roomID = 'prstarmaker_room';  // Oda ID veya ismi
         const userID = 'user_' + Math.floor(Math.random() * 10000);  // Rastgele kullanıcı ID
         const userName = 'User_' + userID;  // Rastgele kullanıcı adı
+        
+        // WebSocket server adresi
+        const serverURL = 'wss://webliveroom18086609-api.coolzcloud.com/ws';
 
         // Oda bağlantısı için gerekli ayarlar
         const config = {
@@ -34,20 +84,25 @@
             userName: userName,
             roomID: roomID,
             container: document.getElementById('room-container'),
+            serverURL: serverURL,  // WebSocket server adresini buraya ekleyin
         };
 
         // ZegoCloud odasına katıl
         const zp = ZegoPrebuiltUIKit.create(config);
-        zp.joinRoom().then(() => {
-            console.log("Odaya başarıyla bağlandınız!");
 
-            // Ses açma işlemi
+        // Katıl butonuna tıklanınca oda bağlantısını yap
+        document.getElementById('joinRoom').addEventListener('click', () => {
+            zp.joinRoom().then(() => {
+                console.log("Odaya başarıyla bağlandınız!");
+            }).catch((error) => {
+                console.error("Odaya bağlanırken bir hata oluştu:", error);
+            });
+        });
+
+        // Ses açma butonuna tıklanınca sesi aç
+        document.getElementById('enableAudio').addEventListener('click', () => {
             zp.enableAudio(true); // Ses aç
-
-            // Eğer ses kapamak isterseniz, aşağıdaki satırı kullanabilirsiniz
-            // zp.enableAudio(false); // Ses kapat
-        }).catch((error) => {
-            console.error("Odaya bağlanırken bir hata oluştu:", error);
+            console.log("Ses açıldı");
         });
     </script>
 </body>

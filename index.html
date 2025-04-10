@@ -1,114 +1,57 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="tr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Karaoke Odası</title>
-    <script src="https://cdn.jsdelivr.net/npm/zego-uikit-prebuilt@latest"></script>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f4;
-        }
-        #room-container {
-            width: 100%;
-            height: 100vh;
-            background-color: #e9ecef;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            position: relative;
-        }
-        .header {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            color: #fff;
-            font-size: 24px;
-            font-weight: bold;
-        }
-        .footer {
-            position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            gap: 20px;
-        }
-        .button {
-            padding: 10px 20px;
-            font-size: 16px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        .button:hover {
-            background-color: #0056b3;
-        }
-    </style>
+    <link rel="stylesheet" href="styles.css"> <!-- Eğer özel stil dosyan varsa -->
+    <script src="https://cdn.jsdelivr.net/npm/zego-sdk@latest"></script> <!-- Zego SDK -->
+    <script src="karaoke.js" defer></script> <!-- Karaoke fonksiyonlarını barındıran JS dosyası -->
 </head>
 <body>
-    <div id="room-container">
-        <div class="header">Karaoke Odası</div>
-    </div>
-
-    <div class="footer">
-        <button class="button" id="enableAudio">Ses Aç</button>
-        <button class="button" id="joinRoom">Odaya Katıl</button>
-        <button class="button" id="playMusic">Müziği Başlat</button>
+    <div id="app-container">
+        <h1>Karaoke Odası</h1>
+        <div id="room-info">
+            <p>Oda Adı: <span id="roomName">KaraokeRoom</span></p>
+            <p>Kullanıcı Adı: <span id="userName">Kullanıcı</span></p>
+        </div>
+        
+        <!-- Mikrofon açma/kapama butonu -->
+        <button id="micButton">Mikrofon Aç/Kapa</button>
+        
+        <!-- Video açma/kapama butonu -->
+        <button id="videoButton">Video Aç/Kapa</button>
+        
+        <!-- Karaoke başlatma butonu -->
+        <button id="karaokeButton">Karaoke Başlat</button>
+        
+        <!-- Sohbet alanı -->
+        <div id="chat-container">
+            <h2>Sohbet</h2>
+            <div id="messages">
+                <!-- Sohbet mesajları buraya gelecek -->
+            </div>
+            <input type="text" id="messageInput" placeholder="Mesaj yaz..." />
+            <button id="sendMessageButton">Gönder</button>
+        </div>
     </div>
 
     <script>
-        // ZegoCloud bilgilerinizi buraya girin
-        const appID = 18086609;  // ZegoCloud AppID
-        const appSign = '6c09f1501d63b3d762b53e3b1fa4c22f4084327a25ec2318e0c7862b8270c543';  // ZegoCloud AppSign
-        const roomID = 'karaoke_room';  // Oda ID veya ismi
-        const userID = 'user_' + Math.floor(Math.random() * 10000);  // Rastgele kullanıcı ID
-        const userName = 'User_' + userID;  // Rastgele kullanıcı adı
-
-        // WebSocket server adresi
-        const serverURL = 'wss://webliveroom18086609-api.coolzcloud.com/ws';
-
-        // Oda bağlantısı için gerekli ayarlar
-        const config = {
-            appID: appID,
-            appSign: appSign,
-            userID: userID,
-            userName: userName,
-            roomID: roomID,
-            container: document.getElementById('room-container'),
-            serverURL: serverURL,
-        };
-
-        // ZegoCloud odasına katıl
-        const zp = ZegoPrebuiltUIKit.create(config);
-
-        // Katıl butonuna tıklanınca oda bağlantısını yap
-        document.getElementById('joinRoom').addEventListener('click', () => {
-            zp.joinRoom().then(() => {
-                console.log("Karaoke odasına başarıyla bağlandınız!");
-            }).catch((error) => {
-                console.error("Karaoke odasına bağlanırken bir hata oluştu:", error);
-            });
+        // Mesaj gönderme işlevi
+        document.getElementById('sendMessageButton').addEventListener('click', function() {
+            const message = document.getElementById('messageInput').value;
+            if (message.trim()) {
+                sendMessage(message);
+                document.getElementById('messageInput').value = '';  // Mesaj gönderildikten sonra input'u temizle
+            }
         });
 
-        // Ses açma butonuna tıklanınca sesi aç
-        document.getElementById('enableAudio').addEventListener('click', () => {
-            zp.enableAudio(true); // Ses aç
-            console.log("Ses açıldı");
-        });
-
-        // Müziği başlat
-        document.getElementById('playMusic').addEventListener('click', () => {
-            const audio = new Audio('karaoke_song.mp3'); // Şarkı URL'si
-            audio.play();
-            console.log("Müzik başladı");
-        });
+        // Sohbet mesajlarını görüntüle
+        function displayMessage(message) {
+            const messageElement = document.createElement('div');
+            messageElement.textContent = message;
+            document.getElementById('messages').appendChild(messageElement);
+        }
     </script>
 </body>
 </html>
